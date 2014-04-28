@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RxUnity.Util {
+// A set of equality operators that eschew boxing/unboxing during comparison.
+
+namespace RxUnity.Util.EqualityOperators {
+
     public class EqualityOperatorComparer<T> : IEqualityComparer<T> where T : class {
         private static readonly Lazy<IEqualityComparer<T>> instance =
             new Lazy<IEqualityComparer<T>>(() => new EqualityOperatorComparer<T>());

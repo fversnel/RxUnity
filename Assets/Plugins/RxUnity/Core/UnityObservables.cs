@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using RxUnity.Util;
+using RxUnity.Util.EqualityOperators;
 using UnityEngine;
 
 namespace RxUnity.Core {
@@ -14,17 +15,39 @@ namespace RxUnity.Core {
             return UnityObservable.EveryUpdate<float>(observer => observer.OnNext(deltaTime()));
         }
 
+        /// <summary>
+        /// Observable that produces the unit value on every Update tick.
+        /// </summary>
+        /// <returns>observable that produces the unit value on every Update tick</returns>
         public static IObservable<Unit> UpdateTicks() {
             return UnityObservable.EveryUpdate<Unit>(observer => observer.OnNext(Unit.Default));
         }
 
+        /// <summary>
+        /// Observable that keeps track of the elapsed time. Produces a new value
+        /// every time the input produces one.
+        /// </summary>
+        /// <param name="deltas">the delta time between each value produced</param>
+        /// <returns>observable that keeps track of the elapsed time</returns>
         public static IObservable<float> TimeElapsed(IObservable<float> deltas) {
             return deltas.Scan(0f, (timePassed, deltaTime) => timePassed + deltaTime);
         }
 
-        public static IObservable<SubjectSelection> RaycastSelection(IObservable<RaycastHit> raycasts,
-            IEnumerable<GameObject> gameObjects) {
-            return gameObjects.Select(g => RaycastSelection(raycasts, g)).Merge();
+        public static IObservable<Ray> Rays(IObservable<Vector3> movement, Camera origin)
+        {
+            return movement.Select(origin.ScreenPointToRay);
+        }
+
+        public static IObservable<RaycastHit> Raycasts(IObservable<Ray> rays, int layerMask, float distance = Mathf.Infinity)
+        {
+            return rays.Select(ray =>
+            {
+                RaycastHit hit;
+                Physics.Raycast(ray, out hit, distance, layerMask);
+                return hit;
+            })
+                // Make sure we don't do any unnecessary raycasts
+                .Publish().RefCount();
         }
 
         public static IObservable<SubjectSelection> RaycastSelection(IObservable<RaycastHit> raycasts,
@@ -46,15 +69,10 @@ namespace RxUnity.Core {
                 .Select(@event => new SubjectSelection(@event, subject));
         }
 
-        public static IObservable<RaycastHit> Raycasts(IObservable<Ray> rays, int layerMask,
-            float distance = Mathf.Infinity) {
-            return rays.Select(ray => {
-                RaycastHit hit;
-                Physics.Raycast(ray, out hit, distance, layerMask);
-                return hit;
-            })
-                // Make sure we don't do any unnecessary raycasts
-                .Publish().RefCount();
+        public static IObservable<SubjectSelection> RaycastSelection(IObservable<RaycastHit> raycasts,
+            IEnumerable<GameObject> gameObjects)
+        {
+            return gameObjects.Select(g => RaycastSelection(raycasts, g)).Merge();
         }
 
         /// <summary>

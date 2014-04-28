@@ -3,7 +3,7 @@
 namespace RxUnity.Util
 {
     /// <summary>
-    /// Will create a new instance lazily of the specified MonoBehaviour lazily.
+    /// Will create a new instance of the specified MonoBehaviour lazily.
     /// </summary>
     /// <typeparam name="T">The type to instantiate</typeparam>
     public class UnitySingleton<T> where T : MonoBehaviour

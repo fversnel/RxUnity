@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using RxUnity.Util;
+using RxUnity.Util.EqualityOperators;
 using UnityEngine;
 
 namespace RxUnity.Core
