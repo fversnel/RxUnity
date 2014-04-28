@@ -35,7 +35,7 @@ namespace RxUnity.Core {
 
         public static IObservable<Ray> Rays(IObservable<Vector3> movement, Camera origin)
         {
-            return movement.Select(origin.ScreenPointToRay);
+            return movement.Select(position => origin.ScreenPointToRay(position));
         }
 
         public static IObservable<RaycastHit> Raycasts(IObservable<Ray> rays, int layerMask, float distance = Mathf.Infinity)

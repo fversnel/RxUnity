@@ -7,7 +7,7 @@ public class UnityRxInputExample : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	    var keyboard = UnityInputObservable.KeyEvents(UnityInputObservable.AllKeys);
+	    var keyboard = UnityInputObservables.KeyEvents(UnityInputObservables.AllKeys);
 	    keyboard.Subscribe(keyEvent => Debug.Log(keyEvent));
 	}
 }
