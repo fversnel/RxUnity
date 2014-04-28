@@ -7,13 +7,15 @@ using RxUnity.Util;
 using UnityEngine;
 
 namespace RxUnity.Core {
-    public static class UnityObservable {
-        public static IObservable<float> UpdateTicks(IUpdateBehaviour updateBehaviour, Func<float> deltaTime) {
-            return CreateUpdate<float>(updateBehaviour, observer => observer.OnNext(deltaTime()));
+
+    public static class UnityObservables {
+
+        public static IObservable<float> UpdateTicks(Func<float> deltaTime) {
+            return UnityObservable.EveryUpdate<float>(observer => observer.OnNext(deltaTime()));
         }
 
-        public static IObservable<Unit> UpdateTicks(IUpdateBehaviour updateBehaviour) {
-            return CreateUpdate<Unit>(updateBehaviour, observer => observer.OnNext(Unit.Default));
+        public static IObservable<Unit> UpdateTicks() {
+            return UnityObservable.EveryUpdate<Unit>(observer => observer.OnNext(Unit.Default));
         }
 
         public static IObservable<float> TimeElapsed(IObservable<float> deltas) {
@@ -62,23 +64,6 @@ namespace RxUnity.Core {
         /// <returns>the delta between the current and previous vector</returns>
         public static IObservable<Vector3> MovementDelta(IObservable<Vector3> movement) {
             return movement.Scan((prevPosition, newPosition) => newPosition - prevPosition);
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Create an observable who's observer is called from the MonoBehaviour.Update method.
-        ///         Can be used to create an Rx Stream from polling for data inside a MonoBehaviour.Update loop.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="T">The observable's type</typeparam>
-        /// <param name="updateBehaviour">The MonoBehaviour to attach this observer to</param>
-        /// <param name="subscribe">The method that is called on each call to MonoBehaviour.Update</param>
-        /// <returns>An observable who's events are produced inside the MonoBehaviour update loop</returns>
-        public static IObservable<T> CreateUpdate<T>(IUpdateBehaviour updateBehaviour, Action<IObserver<T>> subscribe) {
-            return Observable.Create<T>(observer =>
-                AnonymousMonoBehaviour.Update(updateBehaviour, () => subscribe(observer), observer.OnCompleted))
-                .Publish()
-                .RefCount();
         }
 
         /// <summary>

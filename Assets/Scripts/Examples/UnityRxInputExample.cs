@@ -5,11 +5,9 @@ using System;
 
 public class UnityRxInputExample : MonoBehaviour {
 
-    [SerializeField] private AnonymousUpdateBehaviour _updateBehaviour;
-
 	// Use this for initialization
 	void Start () {
-	    var keyboard = UnityInputObservable.KeyEvents(_updateBehaviour, UnityInputObservable.AllKeys);
+	    var keyboard = UnityInputObservable.KeyEvents(UnityInputObservable.AllKeys);
 	    keyboard.Subscribe(keyEvent => Debug.Log(keyEvent));
 	}
 }

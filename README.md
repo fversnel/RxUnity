@@ -4,10 +4,10 @@ Easy usage of Rx in Unity3D projects.
 
 ## Features
 
-* Removes all boilerplate needed to use Rx from Unity.
+* Provides an easy way of creating Observables from Unity's Update and FixedUpdate loops.
 * Includes some observables for input, raycasting, time.
+* Removes all boilerplate needed to use Rx from Unity.
 * Manages the lifecycle of Observables for you, e.g. no resource leaks when forgetting to unsubscribe etc.
-* Makes an effort to have zero allocation observables to prevent a garbage collection nightmare.
 
 ## Installation
 
@@ -16,25 +16,19 @@ Install Rx 1.x from NuGet:
 * Install from NuGet:
 
         Install-Package Rx-Main -Version 1.0.11226
+		Install-Package TaskParallelLibrary
 
-* Move the .Net35 dll to the Assets folder, e.g. Assets/Plugins/Rx
-* Copy the Assets/Plugins/RxUnity to your own project.
+* Move the .Net35 dll from Rx to the Assets folder, e.g. Assets/Plugins/Rx
+* Move the System.Threading.dll to the Assets folder, e.g. Assets/Plugins/TaskParallelLibrary
+* Copy the Assets/Plugins/RxUnity folder to your own project.
 
 ## Usage
 
-Create an anonymous update behaviour:
+Let's create our own observable. In this we create an observable that contains the delta time of every update tick:
 
-To allow Rx Observers hook into Unity's Object lifecycle you have to create an AnonymousUpdateBehaviour.
-This is a single MonoBehaviour that can for example be attached to a global GameObject. The Monobehaviour
-is then used in creation of new Observables, e.g. to capture mouse events from the Unity Update loop. Moreover,
-Whenever the MonoBehaviour is destroyed any subscriptions will automatically be disposed of. So no need to worry about subscription leaks.
-
-Let's get on with it by creating our own observable. In this we create an observable that contains the delta time of every update tick:
-
-	IUpdateBehaviour updateBehaviour = ... // Reference to an UpdateBehaviour, e.g. from the scene.
-    var update = UnityRxObservable.CreateUpdate<float>(updateBehaviour, observer => observer.OnNext(Time.deltaTime))
+    var update = UnityObservable.EveryUpdate<float>(observer => observer.OnNext(Time.deltaTime))
     update.subscribe(delta => Debug.Log(delta));
 
 We can also use one of the readily available Observables:
 
-    var mouse = UnityInputObservable.MouseMove(updateBehaviour);
+    var mouse = UnityInputObservables.MouseMove();
