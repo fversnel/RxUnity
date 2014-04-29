@@ -1,12 +1,11 @@
 # RxUnity
 
-Easy usage of Rx in Unity3D projects.
+Making usage of Rx from Unity a breeze.
 
 ## Features
 
-* Provides an easy way of creating Observables from Unity's Update and FixedUpdate loops.
+* Provides an easy way for creating Observables from Unity's Update and FixedUpdate loops.
 * Includes some observables for input, raycasting, time.
-* Removes all boilerplate needed to use Rx from Unity.
 * Manages the lifecycle of Observables for you, e.g. no resource leaks when forgetting to unsubscribe etc.
 
 ## Installation
