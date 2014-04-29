@@ -11,13 +11,13 @@ namespace RxUnity.Core
     {
         public static readonly KeyCode[] AllKeys = Enum.GetValues(typeof (KeyCode)) as KeyCode[];
 
-        public static IObservable<Vector3> MouseMove()
+        public static IObservable<Vector3> MouseMovement()
         {
             return UnityObservable.EveryUpdate<Vector3>(observer => observer.OnNext(Input.mousePosition))
                 .DistinctUntilChangedEquatable(Vector3Comparer.Instance);
         }
 
-        public static IObservable<KeyEvent> KeyEvents(IEnumerable<KeyCode> pollableKeys)
+        public static IObservable<KeyEvent> KeyEvents(IEnumerable<KeyCode> keys)
         {
             return UnityObservable.EveryUpdate<KeyEvent>(observer =>
             {
@@ -36,21 +36,21 @@ namespace RxUnity.Core
             });
         }
 
-        public static IObservable<KeyCode> KeyDown(IObservable<KeyEvent> keyEvents)
+        public static IObservable<KeyCode> KeyDown(this IObservable<KeyEvent> keyEvents)
         {
-            return from keyEvent in keyEvents
-                where keyEvent.Type == KeyEvent.EventType.Down
-                select keyEvent.KeyCode;
+            return keyEvents
+                .Where(k => k.Type == KeyEvent.EventType.Down)
+                .Select(k => k.KeyCode);
         }
 
-        public static IObservable<KeyCode> KeyUp(IObservable<KeyEvent> keyEvents)
+        public static IObservable<KeyCode> KeyUp(this IObservable<KeyEvent> keyEvents)
         {
-            return from keyEvent in keyEvents
-                where keyEvent.Type == KeyEvent.EventType.Up
-                select keyEvent.KeyCode;
+            return keyEvents
+                .Where(k => k.Type == KeyEvent.EventType.Up)
+                .Select(k => k.KeyCode);
         }
 
-        public static IObservable<HashSet<KeyCode>> KeysHeld(IObservable<KeyEvent> keyEvents)
+        public static IObservable<HashSet<KeyCode>> KeysHeld(this IObservable<KeyEvent> keyEvents)
         {
             return keyEvents.Scan(new HashSet<KeyCode>(), (set, @event) =>
             {

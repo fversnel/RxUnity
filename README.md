@@ -23,11 +23,13 @@ Install Rx 1.x from NuGet:
 
 ## Usage
 
-Let's create our own observable. In this we create an observable that contains the delta time of every update tick:
+Create a custom observable based on Unity's update loop:
 
     var update = UnityObservable.EveryUpdate<float>(observer => observer.OnNext(Time.deltaTime))
-    update.subscribe(delta => Debug.Log(delta));
+    update.Subscribe(delta => Debug.Log(delta));
 
-We can also use one of the readily available Observables:
+Or use one of the readily available Observables:
 
-    var mouse = UnityInputObservables.MouseMove();
+    var mouse = UnityInputObservables.MouseMovement();
+	var rays = UnityObservables.Rays(mouse, camera);
+	rays.Subscribe(ray => Debug.Log(ray));
