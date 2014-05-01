@@ -24,7 +24,7 @@ namespace RxUnity.Core
         /// <returns>An observable who's events are produced at most every update</returns>
         public static IObservable<T> EveryUpdate<T>(Action<IObserver<T>> publish) 
         {
-            return EveryUpdate(UnityThreadDispatcher.Instance.StartCoroutine, EveryUpdateCoroutine, publish);
+            return FromCoroutine<T>((observer, isDisposed) => EveryUpdateCoroutine(publish, observer, isDisposed));
         }
 
         /// <summary>
@@ -37,32 +37,35 @@ namespace RxUnity.Core
         /// <returns>An observable who's events are produced at most every fixed update</returns>
         public static IObservable<T> EveryFixedUpdate<T>(Action<IObserver<T>> publish)
         {
-            return EveryUpdate(UnityThreadDispatcher.Instance.StartCoroutine, EveryFixedUpdateCoroutine, publish);
+            return FromCoroutine<T>((observer, isDisposed) => EveryFixedUpdateCoroutine(publish, observer, isDisposed));
         }
 
-        public static IObservable<T> EveryUpdate<T>(Action<IEnumerator> startUpdateRoutine, 
-            Func<IObserver<T>, Action<IObserver<T>>, Func<bool>, IEnumerator> updateRoutine,
-            Action<IObserver<T>> publish)
+        /// <summary>
+        /// Creates an observable from a coroutine that consumes an observer and an isDisposed closure.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="coroutine">The coroutine that produces the values for the observable</param>
+        /// <returns>an observable who's values are produced inside the given coroutine</returns>
+        public static IObservable<T> FromCoroutine<T>(Func<IObserver<T>, Func<bool>, IEnumerator> coroutine)
+        {
+            return FromCoroutine(UnityThreadDispatcher.Instance.StartCoroutine, coroutine);
+        }
+
+        public static IObservable<T> FromCoroutine<T>(Action<IEnumerator> startCoroutine, Func<IObserver<T>, Func<bool>, IEnumerator> coroutine)
         {
             return Observable.Create<T>(observer =>
             {
                 var cancel = new BooleanDisposable();
 
-                startUpdateRoutine(updateRoutine(observer, publish, () => cancel.IsDisposed));
+                startCoroutine(coroutine(observer, () => cancel.IsDisposed));
                 // Manage subscription inside Unity's lifecycle, complete observable when quitting etc.
-                UnityApplicationLifecycle.Instance.OnQuit.Subscribe(x =>
-                {
-                    observer.OnCompleted();
-                    // Dispose this thing just to be sure, shouldn't be necessary since 
-                    // the UnityThreadDispatcher will be killed anyway
-                    cancel.Dispose();
-                });
+                UnityApplicationLifecycle.Instance.OnQuit.Subscribe(_ => observer.OnCompleted());
 
                 return cancel;
             });
         }
 
-        public static IEnumerator EveryUpdateCoroutine<T>(IObserver<T> observer, Action<IObserver<T>> publish, Func<bool> isDisposed) 
+        public static IEnumerator EveryUpdateCoroutine<T>(Action<IObserver<T>> publish, IObserver<T> observer, Func<bool> isDisposed) 
         {
             while (!isDisposed())
             {
@@ -71,7 +74,7 @@ namespace RxUnity.Core
             }
         }
 
-        public static IEnumerator EveryFixedUpdateCoroutine<T>(IObserver<T> observer, Action<IObserver<T>> publish, Func<bool> isDisposed)
+        public static IEnumerator EveryFixedUpdateCoroutine<T>(Action<IObserver<T>> publish, IObserver<T> observer, Func<bool> isDisposed)
         {
             while (!isDisposed())
             {
