@@ -51,8 +51,8 @@ namespace RxUnity.Core
             return FromCoroutine(UnityThreadDispatcher.Instance.StartCoroutine, coroutine);
         }
 
-        public static IObservable<T> FromCoroutine<T>(Action<IEnumerator> startCoroutine, Func<IObserver<T>, 
-            Func<bool>, IEnumerator> coroutine)
+        public static IObservable<T> FromCoroutine<T>(Action<IEnumerator> startCoroutine, 
+            Func<IObserver<T>, Func<bool>, IEnumerator> coroutine)
         {
             return Observable.Create<T>(observer =>
             {
