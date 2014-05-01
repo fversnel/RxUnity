@@ -21,7 +21,7 @@ namespace RxUnity.Core
         /// </summary>
         /// <typeparam name="T">The observable's type</typeparam>
         /// <param name="publish">The method that is called each frame</param>
-        /// <returns>An observable who's events are produced at most every update</returns>
+        /// <returns>An observable who's values are produced at most every update</returns>
         public static IObservable<T> EveryUpdate<T>(Action<IObserver<T>> publish) 
         {
             return FromCoroutine<T>((observer, isDisposed) => EveryUpdateCoroutine(publish, observer, isDisposed));
@@ -34,7 +34,7 @@ namespace RxUnity.Core
         /// </summary>
         /// <typeparam name="T">The observable's type</typeparam>
         /// <param name="publish">The method that is called each frame</param>
-        /// <returns>An observable who's events are produced at most every fixed update</returns>
+        /// <returns>An observable who's values are produced at most every fixed update</returns>
         public static IObservable<T> EveryFixedUpdate<T>(Action<IObserver<T>> publish)
         {
             return FromCoroutine<T>((observer, isDisposed) => EveryFixedUpdateCoroutine(publish, observer, isDisposed));
@@ -51,7 +51,8 @@ namespace RxUnity.Core
             return FromCoroutine(UnityThreadDispatcher.Instance.StartCoroutine, coroutine);
         }
 
-        public static IObservable<T> FromCoroutine<T>(Action<IEnumerator> startCoroutine, Func<IObserver<T>, Func<bool>, IEnumerator> coroutine)
+        public static IObservable<T> FromCoroutine<T>(Action<IEnumerator> startCoroutine, Func<IObserver<T>, 
+            Func<bool>, IEnumerator> coroutine)
         {
             return Observable.Create<T>(observer =>
             {
@@ -65,7 +66,8 @@ namespace RxUnity.Core
             });
         }
 
-        public static IEnumerator EveryUpdateCoroutine<T>(Action<IObserver<T>> publish, IObserver<T> observer, Func<bool> isDisposed) 
+        public static IEnumerator EveryUpdateCoroutine<T>(Action<IObserver<T>> publish, 
+            IObserver<T> observer, Func<bool> isDisposed) 
         {
             while (!isDisposed())
             {
@@ -74,7 +76,8 @@ namespace RxUnity.Core
             }
         }
 
-        public static IEnumerator EveryFixedUpdateCoroutine<T>(Action<IObserver<T>> publish, IObserver<T> observer, Func<bool> isDisposed)
+        public static IEnumerator EveryFixedUpdateCoroutine<T>(Action<IObserver<T>> publish, 
+            IObserver<T> observer, Func<bool> isDisposed)
         {
             while (!isDisposed())
             {
@@ -102,7 +105,8 @@ namespace RxUnity.Core
                         return;
                     }
 
-                    UnityThreadDispatcher.Instance.StartCoroutine(DelayFrameCore(() => x.Accept(observer), frameCount, () => cancel.IsDisposed));
+                    UnityThreadDispatcher.Instance.StartCoroutine(DelayFrameCore(() => x.Accept(observer), 
+                        frameCount, () => cancel.IsDisposed));
                 });
 
                 return cancel;
