@@ -21,7 +21,7 @@ namespace RxUnity.Schedulers
             IEnumerator DelayAction(TimeSpan dueTime, Action action)
             {
                 yield return new WaitForSeconds((float)dueTime.TotalSeconds);
-                UnityThreadDispatcher.Instance.Post(action);
+                action();
             }
 
             public DateTimeOffset Now

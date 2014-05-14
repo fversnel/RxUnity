@@ -16,14 +16,6 @@ namespace RxUnity.Core {
         }
 
         /// <summary>
-        /// Observable that produces the unit value on every Update tick.
-        /// </summary>
-        /// <returns>observable that produces the unit value on every Update tick</returns>
-        public static IObservable<Unit> UpdateTicks() {
-            return UnityObservable.EveryUpdate<Unit>(observer => observer.OnNext(Unit.Default));
-        }
-
-        /// <summary>
         /// Observable that keeps track of the elapsed time. Produces a new value
         /// every time the input produces one.
         /// </summary>
@@ -33,21 +25,17 @@ namespace RxUnity.Core {
             return deltas.Scan(0f, (timePassed, deltaTime) => timePassed + deltaTime);
         }
 
-        public static IObservable<Ray> Rays(IObservable<Vector3> movement, Camera origin)
+        public static IObservable<RaycastHit> Raycasts(IObservable<Vector3> cursorPositions, Func<Vector3, Ray> createRay, 
+            Func<Ray, RaycastHit> raycast) 
         {
-            return movement.Select(position => origin.ScreenPointToRay(position));
-        }
-
-        public static IObservable<RaycastHit> Raycasts(IObservable<Ray> rays, int layerMask, float distance = Mathf.Infinity)
-        {
-            return rays.Select(ray =>
+            return Observable.Create<RaycastHit>(observer =>
             {
-                RaycastHit hit;
-                Physics.Raycast(ray, out hit, distance, layerMask);
-                return hit;
-            })
-                // Make sure we don't do any unnecessary raycasts
-                .Publish().RefCount();
+                return cursorPositions.Subscribe(cursorPosition =>
+                {
+                    var ray = createRay(cursorPosition);
+                    observer.OnNext(raycast(ray));
+                }, observer.OnError, observer.OnCompleted);
+            }).Publish().RefCount();
         }
 
         public static IObservable<SubjectSelection> RaycastSelection(IObservable<RaycastHit> raycasts,

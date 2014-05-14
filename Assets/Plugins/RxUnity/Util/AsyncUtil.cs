@@ -7,7 +7,7 @@ namespace RxUnity.Util {
     public class AsyncUtil {
 
         /// <summary>
-        /// Runs the work asynchronously and publishes and stores it in the returned Observable.
+        /// Runs the work asynchronously then publishes and stores it in the returned Observable.
         /// </summary>
         /// <typeparam name="T">the result type of the work</typeparam>
         /// <param name="work">the actual work to be done</param>

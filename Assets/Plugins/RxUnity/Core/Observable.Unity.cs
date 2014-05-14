@@ -66,7 +66,7 @@ namespace RxUnity.Core
             });
         }
 
-        public static IEnumerator EveryUpdateCoroutine<T>(Action<IObserver<T>> publish, 
+        static IEnumerator EveryUpdateCoroutine<T>(Action<IObserver<T>> publish, 
             IObserver<T> observer, Func<bool> isDisposed) 
         {
             while (!isDisposed())
@@ -76,7 +76,7 @@ namespace RxUnity.Core
             }
         }
 
-        public static IEnumerator EveryFixedUpdateCoroutine<T>(Action<IObserver<T>> publish, 
+        static IEnumerator EveryFixedUpdateCoroutine<T>(Action<IObserver<T>> publish, 
             IObserver<T> observer, Func<bool> isDisposed)
         {
             while (!isDisposed())

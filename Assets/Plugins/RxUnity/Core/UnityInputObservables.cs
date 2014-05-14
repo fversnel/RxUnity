@@ -17,13 +17,13 @@ namespace RxUnity.Core
                 .DistinctUntilChangedEquatable(Vector3Comparer.Instance);
         }
 
-        public static IObservable<KeyEvent> KeyEvents(IEnumerable<KeyCode> keys)
+        public static IObservable<KeyEvent> KeyEvents(IList<KeyCode> keys)
         {
             return UnityObservable.EveryUpdate<KeyEvent>(observer =>
             {
-                for (int i = 0; i < AllKeys.Length; i++)
+                for (int i = 0; i < keys.Count; i++)
                 {
-                    KeyCode key = AllKeys[i];
+                    KeyCode key = keys[i];
                     if (Input.GetKeyDown(key))
                     {
                         observer.OnNext(new KeyEvent(KeyEvent.EventType.Down, key));
